@@ -22,7 +22,7 @@ using Windows.UI.Xaml.Navigation;
 namespace SlideShow_1._0
 {
     /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// The main page ( Shows the picturs ).
     /// </summary>
     public sealed partial class MainPage : Page
     {
@@ -30,38 +30,61 @@ namespace SlideShow_1._0
         {
             this.InitializeComponent();
         }
+
+        /// <summary>
+        /// When Page is Loaded then load pictures
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-
-            StorageFolder Folder = KnownFolders.PicturesLibrary;
-            if (Folder != null)
+            try
             {
-                var query = CommonFileQuery.OrderByDate;
-                var queryOptions = new QueryOptions(query, new[] { ".png", ".jpg" });
-                queryOptions.FolderDepth = FolderDepth.Shallow;
-                var queryResult = Folder.CreateFileQueryWithOptions(queryOptions);
-                var files = await queryResult.GetFilesAsync();
-                if (files != null)
+                //get pictures folder
+                StorageFolder Folder = KnownFolders.PicturesLibrary;
+
+                if (Folder != null)
                 {
-                    while (true)
+                    //Get all the images (jpg , png) in the pictures folder
+                    var query = CommonFileQuery.OrderByDate;
+                    var queryOptions = new QueryOptions(query, new[] { ".png", ".jpg" });
+                    queryOptions.FolderDepth = FolderDepth.Shallow;
+                    var queryResult = Folder.CreateFileQueryWithOptions(queryOptions);
+                    var files = await queryResult.GetFilesAsync();
+
+
+                    if (files != null)
                     {
-                        foreach (var file in files)
+                        //main loop
+                        while (true)
                         {
-                            using (IRandomAccessStream fileStream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read))
+                            //go over the pictures
+                            foreach (var file in files)
                             {
-                                // Set the image source to the selected bitmap 
-                                BitmapImage bitmapImage = new BitmapImage();
-                                bitmapImage.DecodePixelWidth = 1920; //match the target Image.Width, not shown
-                                bitmapImage.DecodePixelHeight = 1080; //match the target Image.Width, not shown
+                                using (IRandomAccessStream fileStream = await file.OpenAsync(Windows.Storage.FileAccessMode.Read))
+                                {
+                                    // Set the image source to the selected bitmap 
+                                    BitmapImage bitmapImage = new BitmapImage();
+                                    //Optional set width and height
+                                    bitmapImage.DecodePixelWidth = 1920; 
+                                    bitmapImage.DecodePixelHeight = 1080; 
+                                    await bitmapImage.SetSourceAsync(fileStream);
+                                    image.Source = bitmapImage;
+                                    
+                                    //wait 20 seconds
+                                    await Task.Delay(20000);
 
-                                await bitmapImage.SetSourceAsync(fileStream);
-                                im.Source = bitmapImage;
-                                await Task.Delay(20000);
-
+                                }
                             }
                         }
                     }
                 }
+            }catch(Exception ex)
+            {
+                //Show exception message
+                image.Visibility = Visibility.Collapsed;
+                errorM.Visibility = Visibility.Visible;
+                errorM.Text = ex.Message;
             }
         }
 
