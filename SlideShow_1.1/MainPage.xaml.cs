@@ -18,7 +18,6 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace SlideShow_1._0
 {
@@ -34,9 +33,6 @@ namespace SlideShow_1._0
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
 
-            //string faToken = ApplicationData.Current.LocalSettings.Values["faToken"] as string;
-            //StorageFolder Folder = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(faToken);
-            //  StorageFile file = null;
             StorageFolder Folder = KnownFolders.PicturesLibrary;
             if (Folder != null)
             {
@@ -45,7 +41,6 @@ namespace SlideShow_1._0
                 queryOptions.FolderDepth = FolderDepth.Shallow;
                 var queryResult = Folder.CreateFileQueryWithOptions(queryOptions);
                 var files = await queryResult.GetFilesAsync();
-                //  file = await GetFileAsync(Folder, @"IMG_0586.jpg");
                 if (files != null)
                 {
                     while (true)
@@ -72,14 +67,5 @@ namespace SlideShow_1._0
 
 
 
-        public async Task<StorageFile> GetFileAsync(StorageFolder folder, string filename)
-        {
-            StorageFile file = null;
-            if (folder != null)
-            {
-                file = await folder.GetFileAsync(filename);
-            }
-            return file;
-        }
     }
 }
