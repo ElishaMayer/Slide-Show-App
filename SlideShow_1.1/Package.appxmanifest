@@ -7,14 +7,14 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="1010a8c0-4121-421e-90f8-934579444fe5"
+    Name="eb187cb2-4753-45de-bd94-dc28f27368a5"
     Publisher="CN=user"
     Version="1.0.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="1010a8c0-4121-421e-90f8-934579444fe5" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="eb187cb2-4753-45de-bd94-dc28f27368a5" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>SlideShow_1.1</DisplayName>
+    <DisplayName>SlideShow_1.0</DisplayName>
     <PublisherDisplayName>user</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -30,12 +30,12 @@
   <Applications>
     <Application Id="App"
       Executable="$targetnametoken$.exe"
-      EntryPoint="SlideShow_1._1.App">
+      EntryPoint="SlideShow_1._0.App">
       <uap:VisualElements
-        DisplayName="SlideShow_1.1"
+        DisplayName="SlideShow_1.0"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png"
-        Description="SlideShow_1.1"
+        Description="SlideShow_1.0"
         BackgroundColor="transparent">
         <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
@@ -45,5 +45,7 @@
 
   <Capabilities>
     <Capability Name="internetClient" />
+      <uap:Capability Name="picturesLibrary"/>
+
   </Capabilities>
 </Package>
