@@ -26,6 +26,8 @@ namespace SlideShow_1._0
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        //Time to wait between pictures in seconds
+        private int WaitTime = 20;
         public MainPage()
         {
             this.InitializeComponent();
@@ -72,7 +74,7 @@ namespace SlideShow_1._0
                                     image.Source = bitmapImage;
                                     
                                     //wait 20 seconds
-                                    await Task.Delay(20000);
+                                    await Task.Delay(WaitTime*1000);
 
                                 }
                             }
