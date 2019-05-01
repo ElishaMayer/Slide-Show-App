@@ -1,25 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.Storage.Search;
 using Windows.Storage.Streams;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
-using Windows.UI.Xaml.Navigation;
 using SlideShow_1._1;
 using Windows.UI.ViewManagement;
+using Windows.UI.Xaml.Media;
 
 namespace SlideShow_1._0
 {
@@ -35,7 +28,6 @@ namespace SlideShow_1._0
         int index = -1;
 
         bool pasue = false;
-
 
         public MainPage()
         {
@@ -75,6 +67,7 @@ namespace SlideShow_1._0
                 ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
                 localSettings.Values["ShowWelocme"] = true ;
             }
+            
         }
 
 
@@ -90,6 +83,7 @@ namespace SlideShow_1._0
             {
                 //get pictures folder
                 StorageFolder folder = KnownFolders.PicturesLibrary;
+
                 if (folder != null)
                 {
                     //Get all the images (jpg , png) in the pictures folder
@@ -164,7 +158,7 @@ namespace SlideShow_1._0
         }
 
 
-        private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
+        private async void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
             if (args.VirtualKey == Windows.System.VirtualKey.Right)
             {
@@ -176,9 +170,18 @@ namespace SlideShow_1._0
             }
             else if (args.VirtualKey == Windows.System.VirtualKey.F1)
             {
+                var popups = VisualTreeHelper.GetOpenPopups(Window.Current);
+                foreach (var popup in popups)
+                {
+                    if (popup.Child is ContentDialog)
+                    {
+                        return;
+                    }
+                }
                 ChangeTime dialog = new ChangeTime(WaitTime);
                 dialog.DialogClosed += Dialog_DialogClosed;
                 dialog.ShowAsync();
+
             }
             else if (args.VirtualKey == Windows.System.VirtualKey.F11)
             {
@@ -195,10 +198,32 @@ namespace SlideShow_1._0
             else if (args.VirtualKey == Windows.System.VirtualKey.Space)
             {
                 if (pasue == false)
+                {
                     pasue = true;
+                    MessageBox.Show("Paused", 1000);
+                }
                 else
                 {
                     pasue = false;
+                    MessageBox.Show("Continue", 1000);
+                }
+            }
+            else if (args.VirtualKey == Windows.System.VirtualKey.F2)
+            {
+                var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+                picker.FileTypeFilter.Add(".jpg");
+                picker.FileTypeFilter.Add(".jpeg");
+                picker.FileTypeFilter.Add(".png");
+                var files = await picker.PickMultipleFilesAsync();
+                if (files != null && files.ToArray().Count() != 0)
+                {
+
+                    pictures = files.ToArray();
+                    index = 0;
+                    ShowNextPicture();
+                    this.Focus(FocusState.Keyboard);
                 }
             }
 
@@ -208,11 +233,15 @@ namespace SlideShow_1._0
         {
             ChangeTime dialog = sender as ChangeTime;
             if (dialog.Update)
+            {
                 WaitTime = dialog.IntervalNum;
+                MessageBox.Show("New Interval time saved.", 1000);
+            }
 
-            // Save a setting locally on the device
-            ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+                // Save a setting locally on the device
+                ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
             localSettings.Values["interval"] = WaitTime;
+
         }
     }
 

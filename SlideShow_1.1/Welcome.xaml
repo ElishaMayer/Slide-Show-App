@@ -10,7 +10,7 @@
     SecondaryButtonText="Ok"
     SecondaryButtonClick="ContentDialog_SecondaryButtonClick">
     <StackPanel>
-        <TextBlock x:Name="TextDialog" Text="The app will show all the pictures in the Pictures folder and sub folders.&#x0a;&#x0a;Button Functions:&#x0a;F1 - to change settings.&#x0a;F11 - to enter or exit fuul screen.&#x0a;Space - to pause.&#x0a;Left Arrow - to show previous pictue.&#x0a;Right Arrow - to show next picture."/>
+        <TextBlock x:Name="TextDialog" Text="The app will show all the pictures in the Pictures folder and sub folders.&#x0a;&#x0a;Button Functions:&#x0a;F1 - to change settings.&#x0a;F2 - to pick custom pictures.&#x0a;F11 - to enter or exit fuul screen.&#x0a;Space - to pause.&#x0a;Left Arrow - to show previous pictue.&#x0a;Right Arrow - to show next picture."/>
     <CheckBox Margin="3" x:Name="ShowAgain" HorizontalAlignment="Left" Content="Don't Show Again."/>
     </StackPanel>
 </ContentDialog>
