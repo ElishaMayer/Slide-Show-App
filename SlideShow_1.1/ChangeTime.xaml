@@ -16,5 +16,7 @@
       
         </ComboBox>
         <TextBlock Text="Seconds" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5"/>
+        <Border VerticalAlignment="Stretch" BorderBrush="Gray" BorderThickness="1"/>
+        <CheckBox x:Name="ShuffleCheck" Content="Play Shuffle" Margin="5" Checked="ShuffleCheck_Checked" Unchecked="ShuffleCheck_Unchecked" />
     </StackPanel>
 </ContentDialog>

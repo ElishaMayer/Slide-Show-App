@@ -20,13 +20,16 @@ namespace SlideShow_1._1
     public sealed partial class ChangeTime : ContentDialog
     {
         public int IntervalNum { set; get; }
+        public bool Shuffle{set;get;}
         public bool Update = false;
         public event EventHandler<EventArgs> DialogClosed;
-        public ChangeTime(int defaultNum =1)
+        public ChangeTime(int defaultNum =1,bool shuffle=false)
         {
             this.InitializeComponent();
             Interval.ItemsSource = Enumerable.Range(1, 200).ToList();
             Interval.SelectedItem = defaultNum ;
+            this.ShuffleCheck.IsChecked = shuffle;
+            Shuffle = shuffle;
 
         }
 
@@ -49,6 +52,16 @@ namespace SlideShow_1._1
         private void Interval_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             IntervalNum = (int)Interval.SelectedItem;
+        }
+
+        private void ShuffleCheck_Checked(object sender, RoutedEventArgs e)
+        {
+            Shuffle = true;
+        }
+
+        private void ShuffleCheck_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Shuffle = false;
         }
     }
 }

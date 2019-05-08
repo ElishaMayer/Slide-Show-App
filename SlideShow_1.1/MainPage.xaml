@@ -11,7 +11,7 @@
     >
     <Grid  >
         
-
+        <ProgressRing  x:Name="ring" IsActive="True" HorizontalAlignment="Center" VerticalAlignment="Center" Width="50" Height="50"/>
         <Image x:Name="image" ></Image>
         <TextBlock x:Name="errorM" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="24" Text="Error...." Foreground="White"/>
     </Grid>

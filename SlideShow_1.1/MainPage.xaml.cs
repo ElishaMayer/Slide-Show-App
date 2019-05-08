@@ -29,6 +29,10 @@ namespace SlideShow_1._0
 
         bool pasue = false;
 
+        bool Shuffle = true;
+        Random rand = new Random();
+        int prew = 0;
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -56,6 +60,18 @@ namespace SlideShow_1._0
                 localSettings.Values["interval"] = WaitTime;
             }
 
+            // load a setting that is local to the device
+            localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+            bool? Value2 = localSettings.Values["shuffle"] as bool?;
+            if (Value2 != null)
+                Shuffle = (bool)Value2;
+            else
+            {
+                // Save a setting locally on the device
+                localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+                localSettings.Values["shuffle"] = Shuffle;
+            }
+
         }
 
         private void Dialog_DialogClosed1(object sender, EventArgs e)
@@ -81,19 +97,45 @@ namespace SlideShow_1._0
         {
             try
             {
-                //get pictures folder
-                StorageFolder folder = KnownFolders.PicturesLibrary;
 
+                var folder = KnownFolders.PicturesLibrary;
                 if (folder != null)
                 {
                     //Get all the images (jpg , png) in the pictures folder
-                    var query = CommonFileQuery.OrderByDate;
-                    var queryOptions = new QueryOptions(query, new[] { ".png", ".jpg" });
-                    queryOptions.FolderDepth = FolderDepth.Deep;
+                    var queryOptions = new QueryOptions(CommonFileQuery.OrderByDate, new[] { ".png", ".jpg" })
+                    {
+                        FolderDepth = FolderDepth.Shallow
+                    };
                     var queryResult = folder.CreateFileQueryWithOptions(queryOptions);
                     IReadOnlyList<StorageFile> files = await queryResult.GetFilesAsync();
                     pictures = files.ToArray();
                 }
+
+                 
+                var UsbPictures = await KnownFolders.RemovableDevices.GetAllFilesAsync();
+                //var Usb = Usbs.FirstOrDefault();
+                //var pic = await Removebledrives.GetAllFilesAsync();
+                pictures = pictures.Union(UsbPictures.ToArray()).ToArray();
+                //var folders = await Usb.GetFoldersAsync();
+                //folder = folders.FirstOrDefault();
+
+                //if (folder != null)
+                //{
+                //    //Get all the images (jpg , png) in the pictures folder
+                //    var queryOptions = new QueryOptions(CommonFileQuery.OrderByDate, new[] { ".png", ".jpg" })
+                //    {
+                //        FolderDepth = FolderDepth.Shallow
+                //    };
+                //    var queryResult = folder.CreateFileQueryWithOptions(queryOptions);
+                //    IReadOnlyList<StorageFile> files = await queryResult.GetFilesAsync();
+                //    pictures = files.ToArray();
+                //}
+                //// GetAllFiles(folder,aaa);
+
+
+
+                ring.Visibility = Visibility.Collapsed;
+                ring.IsActive = false;
                 this.Focus(FocusState.Keyboard);
                 //main loop
                 while (true)
@@ -112,12 +154,24 @@ namespace SlideShow_1._0
             }
         }
 
+      
         private StorageFile GetNextPicture()
         {
-            if(index == pictures.Length-1)
-                index = -1;
-            return pictures[++index];
-    
+            if (!Shuffle)
+            {
+                if (index == pictures.Length - 1)
+                    index = -1;
+                return pictures[++index];
+            }
+            else
+            {
+                int num;
+                do
+                {
+                    num = rand.Next(0, pictures.Length - 1);
+                } while (num == prew);
+                return pictures[num];
+            }
         }
 
         private StorageFile GetPrewPicture()
@@ -178,7 +232,7 @@ namespace SlideShow_1._0
                         return;
                     }
                 }
-                ChangeTime dialog = new ChangeTime(WaitTime);
+                ChangeTime dialog = new ChangeTime(WaitTime,Shuffle);
                 dialog.DialogClosed += Dialog_DialogClosed;
                 dialog.ShowAsync();
 
@@ -235,15 +289,30 @@ namespace SlideShow_1._0
             if (dialog.Update)
             {
                 WaitTime = dialog.IntervalNum;
-                MessageBox.Show("New Interval time saved.", 1000);
+                Shuffle = dialog.Shuffle;
+                MessageBox.Show("New Settings saved.", 1000);
             }
 
                 // Save a setting locally on the device
                 ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
             localSettings.Values["interval"] = WaitTime;
+            // Save a setting locally on the device
+            localSettings = ApplicationData.Current.LocalSettings;
+            localSettings.Values["shuffle"] = Shuffle;
 
         }
     }
 
+    static class Extention
+    {
+        public static async Task<IEnumerable<StorageFile>> GetAllFilesAsync(this StorageFolder folder)
+        {
+            IEnumerable<StorageFile> files = await folder.GetFilesAsync();
+            IEnumerable<StorageFolder> folders = await folder.GetFoldersAsync();
+            foreach (StorageFolder subfolder in folders)
+                files = files.Concat(await subfolder.GetAllFilesAsync());
+            return files;
+        }
 
+    }
 }
