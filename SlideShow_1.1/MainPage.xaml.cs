@@ -76,14 +76,17 @@ namespace SlideShow_1._0
 
         private void Dialog_DialogClosed1(object sender, EventArgs e)
         {
-            Welcome welcome = sender as Welcome;
-            if (welcome.ShowNext)
+            try
             {
-                // Save a setting locally on the device
-                ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
-                localSettings.Values["ShowWelocme"] = true ;
+                Welcome welcome = sender as Welcome;
+                if (welcome.ShowNext)
+                {
+                    // Save a setting locally on the device
+                    ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+                    localSettings.Values["ShowWelocme"] = true;
+                }
             }
-            
+            catch { }
         }
 
 
@@ -157,149 +160,179 @@ namespace SlideShow_1._0
       
         private StorageFile GetNextPicture()
         {
-            if (!Shuffle)
+            try
             {
-                if (index == pictures.Length - 1)
-                    index = -1;
-                return pictures[++index];
-            }
-            else
-            {
-                int num;
-                do
+                if (!Shuffle)
                 {
-                    num = rand.Next(0, pictures.Length - 1);
-                } while (num == prew);
-                return pictures[num];
+                    if (index == pictures.Length - 1)
+                        index = -1;
+                    return pictures[++index];
+                }
+                else
+                {
+                    int num;
+                    do
+                    {
+                        num = rand.Next(0, pictures.Length - 1);
+                    } while (num == prew);
+                    return pictures[num];
+                }
             }
+            catch { return null; }
         }
 
         private StorageFile GetPrewPicture()
         {
-            if (index == 0)
-                index = pictures.Length;
-            return pictures[--index];
+            try
+            {
+                if (index == 0)
+                    index = pictures.Length;
+                return pictures[--index];
+            }
+            catch { return null; }
 
         }
 
 
         private async void ShowNextPicture()
         {
-            using (IRandomAccessStream fileStream = await GetNextPicture().OpenAsync(FileAccessMode.Read))
+            try
             {
-                // Set the image source to the selected bitmap 
-                BitmapImage bitmapImage = new BitmapImage();
-                //Optional set width and height
-                bitmapImage.DecodePixelWidth = 1920;
-              //  bitmapImage.DecodePixelHeight = 1080;
-                await bitmapImage.SetSourceAsync(fileStream);
-                image.Source = bitmapImage;
+                using (IRandomAccessStream fileStream = await GetNextPicture().OpenAsync(FileAccessMode.Read))
+                {
+                    // Set the image source to the selected bitmap 
+                    BitmapImage bitmapImage = new BitmapImage();
+                    //Optional set width and height
+                    bitmapImage.DecodePixelWidth = 1920;
+                    //  bitmapImage.DecodePixelHeight = 1080;
+                    await bitmapImage.SetSourceAsync(fileStream);
+                    image.Source = bitmapImage;
+                }
             }
+            catch { }
         }
 
         private async void ShowPrewPicture()
         {
-            using (IRandomAccessStream fileStream = await GetPrewPicture().OpenAsync(FileAccessMode.Read))
+            try
             {
-                // Set the image source to the selected bitmap 
-                BitmapImage bitmapImage = new BitmapImage();
-                //Optional set width and height
-                bitmapImage.DecodePixelWidth = 1920;
-                //  bitmapImage.DecodePixelHeight = 1080;
-                await bitmapImage.SetSourceAsync(fileStream);
-                image.Source = bitmapImage;
+                using (IRandomAccessStream fileStream = await GetPrewPicture().OpenAsync(FileAccessMode.Read))
+                {
+                    // Set the image source to the selected bitmap 
+                    BitmapImage bitmapImage = new BitmapImage();
+                    //Optional set width and height
+                    bitmapImage.DecodePixelWidth = 1920;
+                    //  bitmapImage.DecodePixelHeight = 1080;
+                    await bitmapImage.SetSourceAsync(fileStream);
+                    image.Source = bitmapImage;
+                }
             }
+            catch { }
         }
 
 
         private async void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
         {
-            if (args.VirtualKey == Windows.System.VirtualKey.Right)
+            try
             {
-                ShowNextPicture();
-            }
-            else if (args.VirtualKey == Windows.System.VirtualKey.Left)
-            {
-                ShowPrewPicture();
-            }
-            else if (args.VirtualKey == Windows.System.VirtualKey.F1)
-            {
-                var popups = VisualTreeHelper.GetOpenPopups(Window.Current);
-                foreach (var popup in popups)
+                if (args.VirtualKey == Windows.System.VirtualKey.Right)
                 {
-                    if (popup.Child is ContentDialog)
+                    ShowNextPicture();
+                }
+                else if (args.VirtualKey == Windows.System.VirtualKey.Left)
+                {
+                    ShowPrewPicture();
+                }
+                else if (args.VirtualKey == Windows.System.VirtualKey.F1)
+                {
+                    var popups = VisualTreeHelper.GetOpenPopups(Window.Current);
+                    foreach (var popup in popups)
                     {
-                        return;
+                        if (popup.Child is ContentDialog)
+                        {
+                            return;
+                        }
+                    }
+                    ChangeTime dialog = new ChangeTime(WaitTime, Shuffle);
+                    dialog.DialogClosed += Dialog_DialogClosed;
+                    dialog.ShowAsync();
+
+                }
+                else if (args.VirtualKey == Windows.System.VirtualKey.F11)
+                {
+                    var view = ApplicationView.GetForCurrentView();
+                    if (view.IsFullScreenMode)
+                    {
+                        view.ExitFullScreenMode();
+                    }
+                    else
+                    {
+                        var succeeded = view.TryEnterFullScreenMode();
                     }
                 }
-                ChangeTime dialog = new ChangeTime(WaitTime,Shuffle);
-                dialog.DialogClosed += Dialog_DialogClosed;
-                dialog.ShowAsync();
+                else if (args.VirtualKey == Windows.System.VirtualKey.Space)
+                {
+                    var popups = VisualTreeHelper.GetOpenPopups(Window.Current);
+                    foreach (var popup in popups)
+                    {
+                        if (popup.Child is ContentDialog)
+                        {
+                            return;
+                        }
+                    }
+                    if (pasue == false)
+                    {
+                        pasue = true;
+                        MessageBox.Show("Paused", 1000);
+                    }
+                    else
+                    {
+                        pasue = false;
+                        MessageBox.Show("Continue", 1000);
+                    }
+                }
+                else if (args.VirtualKey == Windows.System.VirtualKey.F2)
+                {
+                    var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                    picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+                    picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+                    picker.FileTypeFilter.Add(".jpg");
+                    picker.FileTypeFilter.Add(".jpeg");
+                    picker.FileTypeFilter.Add(".png");
+                    var files = await picker.PickMultipleFilesAsync();
+                    if (files != null && files.ToArray().Count() != 0)
+                    {
 
-            }
-            else if (args.VirtualKey == Windows.System.VirtualKey.F11)
-            {
-                var view = ApplicationView.GetForCurrentView();
-                if (view.IsFullScreenMode)
-                {
-                    view.ExitFullScreenMode();
-                }
-                else
-                {
-                    var succeeded = view.TryEnterFullScreenMode();
+                        pictures = files.ToArray();
+                        index = 0;
+                        ShowNextPicture();
+                        this.Focus(FocusState.Keyboard);
+                    }
                 }
             }
-            else if (args.VirtualKey == Windows.System.VirtualKey.Space)
-            {
-                if (pasue == false)
-                {
-                    pasue = true;
-                    MessageBox.Show("Paused", 1000);
-                }
-                else
-                {
-                    pasue = false;
-                    MessageBox.Show("Continue", 1000);
-                }
-            }
-            else if (args.VirtualKey == Windows.System.VirtualKey.F2)
-            {
-                var picker = new Windows.Storage.Pickers.FileOpenPicker();
-                picker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
-                picker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
-                picker.FileTypeFilter.Add(".jpg");
-                picker.FileTypeFilter.Add(".jpeg");
-                picker.FileTypeFilter.Add(".png");
-                var files = await picker.PickMultipleFilesAsync();
-                if (files != null && files.ToArray().Count() != 0)
-                {
-
-                    pictures = files.ToArray();
-                    index = 0;
-                    ShowNextPicture();
-                    this.Focus(FocusState.Keyboard);
-                }
-            }
-
+            catch { }
         }
 
         private void Dialog_DialogClosed(object sender, EventArgs e)
         {
-            ChangeTime dialog = sender as ChangeTime;
-            if (dialog.Update)
+            try
             {
-                WaitTime = dialog.IntervalNum;
-                Shuffle = dialog.Shuffle;
-                MessageBox.Show("New Settings saved.", 1000);
-            }
+                ChangeTime dialog = sender as ChangeTime;
+                if (dialog.Update)
+                {
+                    WaitTime = dialog.IntervalNum;
+                    Shuffle = dialog.Shuffle;
+                    MessageBox.Show("New Settings saved.", 1000);
+                }
 
                 // Save a setting locally on the device
                 ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
-            localSettings.Values["interval"] = WaitTime;
-            // Save a setting locally on the device
-            localSettings = ApplicationData.Current.LocalSettings;
-            localSettings.Values["shuffle"] = Shuffle;
-
+                localSettings.Values["interval"] = WaitTime;
+                // Save a setting locally on the device
+                localSettings = ApplicationData.Current.LocalSettings;
+                localSettings.Values["shuffle"] = Shuffle;
+            }
+            catch { }
         }
     }
 
